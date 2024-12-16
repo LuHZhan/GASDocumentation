@@ -316,7 +316,9 @@ void AGDHeroCharacter::BindASCInput()
 	{
 		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-			FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EGDAbilityInputID::Confirm), static_cast<int32>(EGDAbilityInputID::Cancel)));
+			FString("CancelTarget"), AbilityEnumAssetPath,
+			static_cast<int32>(EGDAbilityInputID::Confirm),
+			static_cast<int32>(EGDAbilityInputID::Cancel)));
 
 		ASCInputBound = true;
 	}

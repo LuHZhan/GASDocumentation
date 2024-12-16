@@ -17,21 +17,21 @@ class GASDOCUMENTATION_API UGDGameplayAbility : public UGameplayAbility
 	
 public:
 	UGDGameplayAbility();
-
-	// Abilities with this set will automatically activate when the input is pressed
+	
+	// 按下输入时，具有此组的技能将自动激活
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EGDAbilityInputID AbilityInputID = EGDAbilityInputID::None;
-
-	// Value to associate an ability with an slot without tying it to an automatically activated input.
-	// Passive abilities won't be tied to an input so we need a way to generically associate abilities with slots.
+	
+	// 用于将技能与某个槽（slot）关联，而不需要依赖于输入事件来自动激活技能。
+	// 这种设计非常适用于被动技能，因为被动技能通常不依赖于玩家的输入来激活，而是自动生效。通过 AbilityID，你可以为这些技能分配一个唯一标识符，以便在技能槽中进行管理，而无需输入事件的触发。
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Ability")
 	EGDAbilityInputID AbilityID = EGDAbilityInputID::None;
-
-	// Tells an ability to activate immediately when its granted. Used for passive abilities and abilities forced on others.
+	
+	// 该能力是否应在被授予角色时立即激活。
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Ability")
 	bool ActivateAbilityOnGranted = false;
 
-	// If an ability is marked as 'ActivateAbilityOnGranted', activate them immediately when given here
-	// Epic's comment: Projects may want to initiate passives or do other "BeginPlay" type of logic here.
+	// 如果 ActivateAbilityOnGranted 被设置为 true，能力将在赋予角色时立即激活。此时，OnAvatarSet 方法将会被执行，处理一些初始化操作。
+	// Epic's comment：在这个时机执行一些类似 BeginPlay 的逻辑，特别是对于被动技能或其他自动激活的技能。
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 };

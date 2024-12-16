@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/ObjectMacros.h"
 
+// 用于获取某个角色（Actor）的网络角色（ENetRole）的字符串表示
 #define ACTOR_ROLE_FSTRING *(FindObject<UEnum>(nullptr, TEXT("/Script/Engine.ENetRole"), true)->GetNameStringByValue(GetLocalRole()))
 #define GET_ACTOR_ROLE_FSTRING(Actor) *(FindObject<UEnum>(nullptr, TEXT("/Script/Engine.ENetRole"), true)->GetNameStringByValue(Actor->GetLocalRole()))
 
@@ -23,6 +24,7 @@ enum class EGDHitReactDirection : uint8
 	Back			UMETA(DisplayName = "Back")
 };
 
+// 角色具有的动作
 UENUM(BlueprintType)
 enum class EGDAbilityInputID : uint8
 {
