@@ -9,6 +9,20 @@
 
 最好的文档永远是插件的源代码。
 
+**参考文档:** 
+
+> 1. [虚幻GAS系统快速入门](https://zhuanlan.zhihu.com/p/486808688)
+>
+> 2. [UE-GAS架构分析(三)(GameplayEffect)](https://zhuanlan.zhihu.com/p/464329488)
+>
+> 3. [Gameplay Ability](https://zhuanlan.zhihu.com/p/425001766)
+>
+> 4. [理解UE5 GAS系统的设计和实现](https://zhuanlan.zhihu.com/p/615477628)
+>
+> 5. [DataRegistry：一种统领全局的新数据配置工具 | Epic 大钊](https://www.bilibili.com/video/BV1qq4y1W7Ka/?vd_source=90a787fe6882069eaad968c5da63efa1)
+>
+> 6. [关于UE和游戏，应该知道的一些英语知识](https://zhuanlan.zhihu.com/p/384248556)
+
 <a name="table-of-contents"></a>
 
 ## Table of Contents
@@ -173,18 +187,19 @@
 >    * [4.24](#changelog-4.24)
 
 <a name="intro"></a>
+
 ## 1. Intro to the GameplayAbilitySystem Plugin
 **GameplayAbilitySystem 插件** 是由 Epic Games 开发并随 Unreal Engine 一同提供的。它已经在《Paragon》、 《Fortnite》等 AAA 商业游戏中经过了大量的实际验证。
 
 该插件为单人和多人游戏提供了开箱即用的解决方案，涉及以下功能：
 
-- **实现基于等级的角色能力或技能**，可选的消耗和冷却时间（[GameplayAbilities](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-ga)）
-- **操作角色的数值 `Attributes`**（[Attributes](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-a)）
-- **为角色应用状态效果**（[GameplayEffects](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-ge)）
-- **为角色应用 `GameplayTags`**（[GameplayTags](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-gt)）
-- **生成视觉或音效**（[GameplayCues](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-gc)）
+- **实现基于等级的角色能力或技能**，可选的消耗和冷却时间（[GameplayAbilities](#concepts-ga)）
+- **操作角色的数值 `Attributes`**（[Attributes](#concepts-a)）
+- **为角色应用状态效果**([GameplayEffects](#concepts-ge))
+- **为角色应用 `GameplayTags`** ([GameplayTags](#concepts-gt))
+- **生成视觉或音效** ([GameplayCues](#concepts-gc))
 
-在多人游戏中，GAS 提供了对以下内容的 **客户端预测**（[client-side prediction](https://chatgpt.com/c/675e8398-4440-8002-bba4-ae0be318cff6#concepts-p)）支持：
+在多人游戏中，GAS 提供了对以下内容的 **客户端预测**（[client-side prediction](#concepts-p)）支持：
 
 - 能力激活
 - 播放动画蒙太奇
@@ -542,7 +557,7 @@ virtual void HealthChanged(const FOnAttributeChangeData& Data);
 
 <a name="concepts-a-derived"></a>
 
-#### 4.3.5 Derived Attributes
+#### -->4.3.5 Derived Attributes
 要创建一个 `Attribute`，其部分或全部值来源于一个或多个其他 `Attributes`，可以使用一个 `Infinite` 类型的 `GameplayEffect`，并结合一个或多个 `Attribute Based` 或 [`MMC`](#concepts-ge-mmc) [`Modifiers`](#concepts-ge-mods)。当它所依赖的某个 `Attribute` 更新时，`Derived Attribute` 会自动更新。
 
 所有 `Derived Attribute` 上的 `Modifiers` 的最终公式与 `Modifier Aggregators` 的公式相同。如果你需要以特定的顺序执行计算，可以将所有的计算都放在一个 `MMC` 内。
@@ -1767,13 +1782,14 @@ UAbilitySystemComponent::ServerSetInputPressed()
 
 <a name="concepts-ga-input"></a>
 #### 4.6.2 Binding Input to the ASC
-The `ASC` allows you to directly bind input actions to it and assign those inputs to `GameplayAbilities` when you grant them. Input actions assigned to `GameplayAbilities` automatically activate those `GameplayAbilities` when pressed if the `GameplayTag` requirements are met. Assigned input actions are required to use the built-in `AbilityTasks` that respond to input.
+`ASC` 允许你将输入动作直接绑定到它，并在授予 `GameplayAbilities` 时将这些输入分配给这些能力。分配给 `GameplayAbilities` 的输入动作会在按下时自动激活这些能力，前提是满足 `GameplayTag` 的要求。分配的输入动作是使用内置的响应输入的 `AbilityTasks` 所必需的。
 
-In addition to input actions assigned to activate `GameplayAbilities`, the `ASC` also accepts generic `Confirm` and `Cancel` inputs. These special inputs are used by `AbilityTasks` for confirming things like [`Target Actors`](#concepts-targeting-actors) or canceling them.
+除了分配给 `GameplayAbilities` 的输入动作，`ASC` 还接受通用的 `Confirm` 和 `Cancel` 输入。这些特殊输入由 `AbilityTasks` 使用，用于确认诸如 [`Target Actors`](#concepts-targeting-actors) 等内容，或者取消它们。
 
-To bind input to an `ASC`, you must first create an enum that translates the input action name to a byte. The enum name must match exactly to the name used for the input action in the project settings. The `DisplayName` does not matter.
+要将输入绑定到 `ASC`，你必须首先创建一个枚举，将输入动作名称转换为字节。**枚举名称必须与项目设置中用于输入动作的名称完全匹配。`DisplayName` 不影响绑定。**
 
-From the Sample Project:
+来自示例项目：
+
 ```c++
 UENUM(BlueprintType)
 enum class EGDAbilityInputID : uint8
@@ -1801,23 +1817,27 @@ enum class EGDAbilityInputID : uint8
 };
 ```
 
-If your `ASC` lives on the `Character`, then in `SetupPlayerInputComponent()` include the function for binding to the `ASC`:
+如果你的 `ASC` 存在于 `Character` 上，那么在 `SetupPlayerInputComponent()` 中包含绑定到 `ASC` 的函数：
 ```c++
-// Bind to AbilitySystemComponent
+// 获取枚举
 FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
+// 绑定动作
 AbilitySystemComponent->BindAbilityActivationToInputComponent(PlayerInputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
 	FString("CancelTarget"), AbilityEnumAssetPath, static_cast<int32>(EGDAbilityInputID::Confirm), static_cast<int32>(EGDAbilityInputID::Cancel)));
 ```
 
-If your `ASC` lives on the `PlayerState`, there is a potential race condition inside of `SetupPlayerInputComponent()` where the `PlayerState` may not have replicated to the client yet. Therefore, I recommend attempting to bind to input in `SetupPlayerInputComponent()` and `OnRep_PlayerState()`. `OnRep_PlayerState()` is not sufficient by itself because there could be a case where the `Actor's` `InputComponent` could be null when `PlayerState` replicates before the `PlayerController` tells the client to call `ClientRestart()` which creates the `InputComponent`. The Sample Project demonstrates attempting to bind in both locations with a boolean gating the process so it only actually binds the input once.
+如果你的 `ASC` 存在于 `PlayerState` 上，在 `SetupPlayerInputComponent()` 中可能会出现竞争条件，因为 `PlayerState` 可能尚未复制到客户端。因此，我建议尝试在 `SetupPlayerInputComponent()` 和 `OnRep_PlayerState()` 中绑定输入。仅使用 `OnRep_PlayerState()` 不足够。
 
-**Note:** In the Sample Project `Confirm` and `Cancel` in the enum don't match the input action names in the project settings (`ConfirmTarget` and `CancelTarget`), but we supply the mapping between them in `BindAbilityActivationToInputComponent()`. These are special since we supply the mapping and they don't have to match, but they can match. All other inputs in the enum must match the input action names in the project settings.
+因为可能存在这样一种情况：**`Actor` 的 `InputComponent` 在 `PlayerState` 复制之前为空，而此时 `PlayerController` 会告诉客户端调用 `ClientRestart()` 来创建 `InputComponent`。**示例项目演示了如何在这两个位置尝试绑定输入，并使用布尔值控制该过程，确保只在第一次绑定时实际绑定输入。
 
-For `GameplayAbilities` that will only ever be activated by one input (they will always exist in the same "slot" like a MOBA), I prefer to add a variable to my `UGameplayAbility` subclass where I can define their input. I can then read this from the `ClassDefaultObject` when granting the ability.
+**注意：** 在示例项目中，枚举中的 `Confirm` 和 `Cancel` 与项目设置中的输入动作名称（`ConfirmTarget` 和 `CancelTarget`）不匹配，但我们在 `BindAbilityActivationToInputComponent()` 中提供了它们之间的映射。这些输入是特殊的，因为我们提供了映射，它们不必匹配，但可以匹配。枚举中的所有其他输入必须与项目设置中的输入动作名称匹配。
+
+对于仅通过一个输入激活的 `GameplayAbilities`（它们总是存在于相同的“槽位”中，像 MOBA 游戏一样），我更喜欢向我的 `UGameplayAbility` 子类中添加一个变量来定义它们的输入。然后，我可以在授予能力时从 `ClassDefaultObject` 中读取该输入。
 
 <a name="concepts-ga-input-noactivate"></a>
+
 ##### 4.6.2.1 Binding to Input without Activating Abilities
-If you don't want your `GameplayAbilities` to automatically activate when an input is pressed but still bind them to input to use with `AbilityTasks`, you can add a new bool variable to your `UGameplayAbility` subclass, `bActivateOnInput`, that defaults to `true` and override `UAbilitySystemComponent::AbilityLocalInputPressed()`.
+如果你不希望你的 `GameplayAbilities` 在按下输入时自动激活，但仍然希望将它们绑定到输入以供 `AbilityTasks` 使用，你可以在 `UGameplayAbility` 子类中添加一个新的布尔变量 `bActivateOnInput`，默认值为 `true`，并重写 `UAbilitySystemComponent::AbilityLocalInputPressed()`。
 
 ```c++
 void UGSAbilitySystemComponent::AbilityLocalInputPressed(int32 InputID)

@@ -74,7 +74,7 @@ void AGDHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 // Server only
-void AGDHeroCharacter::PossessedBy(AController * NewController)
+void AGDHeroCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
@@ -94,7 +94,7 @@ void AGDHeroCharacter::PossessedBy(AController * NewController)
 		// For now assume possession = spawn/respawn.
 		InitializeAttributes();
 
-		
+
 		// Respawn specific things that won't affect first possession.
 
 		// Forcibly set the DeadTag count to 0
@@ -122,12 +122,12 @@ void AGDHeroCharacter::PossessedBy(AController * NewController)
 	}
 }
 
-USpringArmComponent * AGDHeroCharacter::GetCameraBoom()
+USpringArmComponent* AGDHeroCharacter::GetCameraBoom()
 {
 	return CameraBoom;
 }
 
-UCameraComponent * AGDHeroCharacter::GetFollowCamera()
+UCameraComponent* AGDHeroCharacter::GetFollowCamera()
 {
 	return FollowCamera;
 }
@@ -142,12 +142,12 @@ FVector AGDHeroCharacter::GetStartingCameraBoomLocation()
 	return StartingCameraBoomLocation;
 }
 
-UGDFloatingStatusBarWidget * AGDHeroCharacter::GetFloatingStatusBar()
+UGDFloatingStatusBarWidget* AGDHeroCharacter::GetFloatingStatusBar()
 {
 	return UIFloatingStatusBar;
 }
 
-USkeletalMeshComponent * AGDHeroCharacter::GetGunComponent() const
+USkeletalMeshComponent* AGDHeroCharacter::GetGunComponent() const
 {
 	return GunComponent;
 }
@@ -314,11 +314,16 @@ void AGDHeroCharacter::BindASCInput()
 {
 	if (!ASCInputBound && AbilitySystemComponent.IsValid() && IsValid(InputComponent))
 	{
+		// 获取枚举
 		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
-		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, FGameplayAbilityInputBinds(FString("ConfirmTarget"),
-			FString("CancelTarget"), AbilityEnumAssetPath,
-			static_cast<int32>(EGDAbilityInputID::Confirm),
-			static_cast<int32>(EGDAbilityInputID::Cancel)));
+
+		// 
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(
+			InputComponent,
+			FGameplayAbilityInputBinds(FString("ConfirmTarget"),
+			                           FString("CancelTarget"), AbilityEnumAssetPath,
+			                           static_cast<int32>(EGDAbilityInputID::Confirm),
+			                           static_cast<int32>(EGDAbilityInputID::Cancel)));
 
 		ASCInputBound = true;
 	}
