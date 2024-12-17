@@ -12,7 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UGDAbili
  * 
  */
 UCLASS()
-class GASDOCUMENTATION_API zUGDAbilitySystemComponent : public UAbilitySystemComponent
+class GASDOCUMENTATION_API UGDAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
 	

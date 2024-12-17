@@ -317,7 +317,7 @@ void AGDHeroCharacter::BindASCInput()
 		// 获取枚举
 		FTopLevelAssetPath AbilityEnumAssetPath = FTopLevelAssetPath(FName("/Script/GASDocumentation"), FName("EGDAbilityInputID"));
 
-		// 
+		// 绑定输入和枚举，通过InputID去核对GA
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(
 			InputComponent,
 			FGameplayAbilityInputBinds(FString("ConfirmTarget"),

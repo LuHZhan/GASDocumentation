@@ -581,29 +581,32 @@ virtual void HealthChanged(const FOnAttributeChangeData& Data);
 <a name="concepts-as-definition"></a>
 
 #### 4.4.1 Attribute Set Definition
-The `AttributeSet` defines, holds, and manages changes to `Attributes`. Developers should subclass from [`UAttributeSet`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/UAttributeSet/index.html). Creating an `AttributeSet` in an `OwnerActor's` constructor automatically registers it with its `ASC`. **This must be done in C++**.
+`AttributeSet` 定义、保存并管理 `Attributes` 的变化。开发者应该从 [`UAttributeSet`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/UAttributeSet/index.html) 子类化。在 `OwnerActor` 的构造函数中创建一个 `AttributeSet` 会自动将其注册到相应的 `ASC` 中。**这必须在 C++ 中完成**。
 
 **[⬆ Back to Top](#table-of-contents)**
 
 <a name="concepts-as-design"></a>
+
 #### 4.4.2 Attribute Set Design
-An `ASC` may have one or many `AttributeSets`. AttributeSets have negligible memory overhead so how many `AttributeSets` to use is an organizational decision left up to the developer.
+一个 `ASC` 可以拥有一个或多个 `AttributeSets`。`AttributeSet` 的内存开销非常小，因此使用多少 `AttributeSets` 取决于开发者的组织决策。
 
-It is acceptable to have one large monolithic `AttributeSet` shared by every `Actor` in your game and only use attributes if needed while ignoring unused attributes.
+可以选择让每个游戏中的 `Actor` 共享一个大型的单一 `AttributeSet`，并仅在需要时使用相关属性，忽略未使用的属性。
 
-Alternatively, you may choose to have more than one `AttributeSet` representing groupings of `Attributes` that you selectively add to your `Actors` as needed. For example, you could have an `AttributeSet` for health related `Attributes`, an `AttributeSet` for mana related `Attributes`, and so on. In a MOBA game, heroes might need mana but minions might not. Therefore the heroes would get the mana `AttributeSet` and minions would not.
+另一种选择是使用多个 `AttributeSet` 来表示不同类型的属性分组，并根据需要将这些分组添加到 `Actor` 上。例如，可以为与生命相关的属性创建一个 `AttributeSet`，为与魔法相关的属性创建另一个 `AttributeSet`，依此类推。在 MOBA 游戏中，英雄可能需要魔法，而小兵则不需要。因此，英雄会获得魔法 `AttributeSet`，而小兵不会。
 
-Additionally, `AttributeSets` can be subclassed as another means of selectively choosing which `Attributes` an `Actor` has. `Attributes` are internally referred to as `AttributeSetClassName.AttributeName`. When you subclass an `AttributeSet`, all of the `Attributes` from the parent class will still have the parent class's name as the prefix.
+此外，`AttributeSet` 还可以通过子类化来选择性地决定 `Actor` 拥有什么属性。`Attributes` 内部通常以 `AttributeSetClassName.AttributeName` 的格式进行引用。当你子类化一个 `AttributeSet` 时，父类中的所有 `Attributes` 仍然会以父类的名称作为前缀。
 
-While you can have more than one `AttributeSet`, you should not have more than one `AttributeSet` of the same class on an `ASC`. If you have more than one `AttributeSet` from the same class, it won't know which `AttributeSet` to use and will just pick one.
+虽然可以拥有多个 `AttributeSet`，**但不应在同一个 `ASC` 上使用多个相同类的 `AttributeSet`。如果有多个相同类的 `AttributeSet`，`ASC` 将无法确定使用哪个 `AttributeSet`，最终它只会选择一个。**
 
 <a name="concepts-as-design-subcomponents"></a>
-##### 4.4.2.1 Subcomponents with Individual Attributes
-In the scenario where you have multiple damageable components on a `Pawn` like individually damageable armor pieces, I recommend that if you know the maximum number of damageable components that a `Pawn` could have to make that many health `Attributes` on one `AttributeSet` - DamageableCompHealth0, DamageableCompHealth1, etc. to represent logical 'slots' for those damageable components. In your damageable component class instance, assign the slot number `Attribute` that can be read by `GameplayAbilities` or [`Executions`](#concepts-ge-ec) to know which `Attribute` to apply damage to. `Pawns` that have less than the maximum number or zero of damageable components are fine. Just because a `AttributeSet` has an `Attribute`, doesn't mean that you have to use it. Unused `Attributes` take up trivial amount of memory.
 
-If your subcomponents need many `Attributes` each, there's potentially an unbounded number of subcomponents, the subcomponents can detach and be used by other players (e.g. weapons), or for any other reason this approach doesn't work for you, I'd recommend switching away from `Attributes` and instead store plain old floats on the components. See [Item Attributes](#concepts-as-design-itemattributes).
+##### 4.4.2.1 Subcomponents with Individual Attributes
+在有多个可受伤组件的 `Pawn` 的场景中，例如每个可以单独受伤的盔甲部件，我建议，如果你知道 `Pawn` 可能拥有的最大数量的可受伤组件，那么可以在同一个 `AttributeSet` 中为每个组件创建多个健康 `Attribute` ——例如 `DamageableCompHealth0`、`DamageableCompHealth1` 等，来表示这些可受伤组件的逻辑“槽位”。在你的可受伤组件类实例中，分配一个槽位编号的 `Attribute`，以便 `GameplayAbilities` 或 [`Executions`](#concepts-ge-ec) 可以读取并知道应该将伤害应用到哪个 `Attribute` 上。对于那些可受伤组件数量少于最大数量或没有可受伤组件的 `Pawn` 来说也没有问题。即使一个 `AttributeSet` 中有一个 `Attribute`，也不意味着你必须使用它。未使用的 `Attributes` 占用的内存非常小。
+
+> 如果你的子组件每个需要许多 `Attributes`，或者存在无限数量的子组件，子组件可能会脱离并被其他玩家使用（例如武器），或者由于其他原因这种方法不适合你，我建议不再使用 `Attributes`，而是直接在组件上存储简单的浮动值。可以参考 [Item Attributes](#concepts-as-design-itemattributes) 来实现这种方法。
 
 <a name="concepts-as-design-addremoveruntime"></a>
+
 ##### 4.4.2.2 Adding and Removing AttributeSets at Runtime
 `AttributeSets` can be added and removed from an `ASC` at runtime; however, removing `AttributeSets` can be dangerous. For example, if an `AttributeSet` is removed on a client before the server and an `Attribute` value change is replicated to client, the `Attribute` won't find its `AttributeSet` and crash the game.
 
@@ -1726,51 +1729,57 @@ To access the `GESpecs` inside of the `GameplayEffectContainers` to do things li
 ### 4.6 Gameplay Abilities
 
 <a name="concepts-ga-definition"></a>
+
 #### 4.6.1 Gameplay Ability Definition
-[`GameplayAbilities`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/Abilities/UGameplayAbility/index.html) (`GA`) are any actions or skills that an `Actor` can do in the game. More than one `GameplayAbility` can be active at one time for example sprinting and shooting a gun. These can be made in Blueprint or C++.
+[`GameplayAbilities`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/Abilities/UGameplayAbility/index.html)（GA）是指 `Actor` 在游戏中可以执行的任何动作或技能。例如，奔跑和射击枪械可以同时进行。可以通过 Blueprint 或 C++ 来实现这些技能。
 
-Examples of `GameplayAbilities`:
-* Jumping
-* Sprinting
-* Shooting a gun
-* Passively blocking an attack every X number of seconds
-* Using a potion
-* Opening a door
-* Collecting a resource
-* Constructing a building
+`GameplayAbilities` 的示例：
 
-Things that should not be implemented with `GameplayAbilities`:
-* Basic movement input
-* Some interactions with UIs - Don't use a `GameplayAbility` to purchase an item from a store.
+- 跳跃
+- 奔跑
+- 射击枪械
+- 每隔一定时间被动阻挡攻击
+- 使用药水
+- 打开门
+- 收集资源
+- 建造建筑
 
-These are not rules, just my recommendations. Your design and implementations may vary.
+不应通过 `GameplayAbilities` 实现的事情：
 
-`GameplayAbilities` come with default functionality to have a level to modify the amount of change to attributes or to change the `GameplayAbility's` functionality.
+- 基本移动输入
+- 与 UI 的某些交互 —— 不要用 `GameplayAbility` 来从商店购买物品。
 
-`GameplayAbilities` run on the owning client and/or the server depending on the [`Net Execution Policy`](#concepts-ga-net) but not simulated proxies. The `Net Execution Policy` determines if a `GameplayAbility` will be locally [predicted](#concepts-p). They include default behavior for [optional cost and cooldown `GameplayEffects`](#concepts-ga-commit). `GameplayAbilities` use [`AbilityTasks`](#concepts-at) for actions that happen over time like waiting for an event, waiting for an attribute change, waiting for players to choose a target, or moving a `Character` with `Root Motion Source`. **Simulated clients will not run `GameplayAbilities`**. Instead, when the server runs the ability, anything that visually needs to play on the simulated proxies (like animation montages) will be replicated or RPC'd through `AbilityTasks` or [`GameplayCues`](#concepts-gc) for cosmetic things like sounds and particles.
+这些并非硬性规则，只是我的建议。你的设计和实现方式可以有所不同。
 
-All `GameplayAbilities` will have their `ActivateAbility()` function overriden with your gameplay logic. Additional logic can be added to `EndAbility()` that runs when the `GameplayAbility` completes or is canceled.
+`GameplayAbilities` 默认功能包括一个等级系统，用于修改属性变化的幅度，或者改变 `GameplayAbility` 的功能。
 
-Flowchart of a simple `GameplayAbility`:
-![Simple GameplayAbility Flowchart](https://github.com/tranek/GASDocumentation/raw/master/Images/abilityflowchartsimple.png)
+`GameplayAbilities` 根据 [`Net Execution Policy`](#concepts-ga-net) 在拥有客户端和/或服务器上运行，但不会在模拟代理上运行。`Net Execution Policy` 决定了一个 `GameplayAbility` 是否会被本地[predicted](#concepts-p)。它们包括对 [optional cost and cooldown `GameplayEffects`](#concepts-ga-commit) 的默认行为。
+
+`GameplayAbilities` 使用 [`AbilityTasks`](#concepts-at)来处理需要时间的操作，比如等待事件、等待属性变化、等待玩家选择目标，或者使用 `Root Motion Source` 移动 `Character`。**模拟客户端不会运行 `GameplayAbilities`**。相反，当服务器运行能力时，任何需要在模拟代理上播放的视觉效果（如动画蒙太奇）将通过 `AbilityTasks` 或 `GameplayCues` 进行复制或 RPC，以处理如声音和粒子等外观效果。
+
+所有 `GameplayAbilities` 都将重写 `ActivateAbility()` 函数以实现你的游戏逻辑。额外的逻辑可以添加到 `EndAbility()` 中，在 `GameplayAbility` 完成或被取消时执行。
+
+`GameplayAbility` 简易流程图:
+![Simple GameplayAbility Flowchart](/Images/abilityflowchartsimple.png)
+
+ `GameplayAbility `复杂流程图:
+![Complex GameplayAbility Flowchart](/Images/abilityflowchartcomplex.png)
 
 
-Flowchart of a more complex `GameplayAbility`:
-![Complex GameplayAbility Flowchart](https://github.com/tranek/GASDocumentation/raw/master/Images/abilityflowchartcomplex.png)
+复杂的能力可以通过多个相互作用的 `GameplayAbilities` 来实现（激活、取消等）
 
-Complex abilities can be implemented using multiple `GameplayAbilities` that interact (activate, cancel, etc) with each other.
 
 <a name="concepts-ga-definition-reppolicy"></a>
 ##### 4.6.1.1 Replication Policy
-Don't use this option. The name is misleading and you don't need it. [`GameplayAbilitySpecs`](#concepts-ga-spec) are replicated from the server to the owning client by default. As mentioned above, **`GameplayAbilities` don't run on simulated proxies**. They use `AbilityTasks` and `GameplayCues` to replicate or RPC visual changes to the simulated proxies. Dave Ratti from Epic has stated his desire to [remove this option in the future](https://epicgames.ent.box.com/s/m1egifkxv3he3u3xezb9hzbgroxyhx89).
+不要使用此选项。这个名称具有误导性，你也不需要它。[`GameplayAbilitySpecs`](#concepts-ga-spec) 默认会从服务器复制到拥有者客户端。如上所述，**`GameplayAbilities` 不会在模拟代理上运行**。它们使用 `AbilityTasks` 和 `GameplayCues` 将视觉变化复制或通过 RPC 发送到模拟代理。Epic 的 Dave Ratti 表示他有意在将来[移除此选项](https://epicgames.ent.box.com/s/m1egifkxv3he3u3xezb9hzbgroxyhx89)。
 
 <a name="concepts-ga-definition-remotecancel"></a>
 ##### 4.6.1.2 Server Respects Remote Ability Cancellation
-This option causes trouble more often than not. It means if the client's `GameplayAbility` ends either due to cancellation or natural completion, it will force the server's version to end whether it completed or not. The latter issue is the important one, especially for locally predicted `GameplayAbilities` used by players with high latencies. Generally you will want to disable this option.
+这个选项经常会引起问题。它的意思是，如果客户端的 `GameplayAbility` 结束（无论是因为取消还是自然完成），它将强制服务器端的版本结束，无论服务器端是否完成。后者是一个重要的问题，特别是对于高延迟玩家使用的本地预测 `GameplayAbilities`。通常你会希望禁用此选项。
 
 <a name="concepts-ga-definition-repinputdirectly"></a>
 ##### 4.6.1.3 Replicate Input Directly
-Setting this option will always replicate input press and release events to the server. Epic recommends not using this and instead relying on the `Generic Replicated Events` that are built into the existing input related [`AbilityTasks`](#concepts-at) if you have your [input bound to your `ASC`](#concepts-ga-input).
+设置此选项将始终将输入按下和释放事件复制到服务器。Epic 建议不要使用此选项，而是依赖于现有输入相关的 [`AbilityTasks`](#concepts-at) 中内置的 `Generic Replicated Events`，如果你已经将[输入绑定到 `ASC`](#concepts-ga-input)。%
 
 Epic's comment:
 ```c++
@@ -3721,3 +3730,85 @@ https://docs.unrealengine.com/en-US/WhatsNew/Builds/ReleaseNotes/4_25/
 https://docs.unrealengine.com/en-US/WhatsNew/Builds/ReleaseNotes/4_24/
 
 **[⬆ Back to Top](#table-of-contents)**
+
+
+
+## 13. Lu
+
+### 13.1 AbilitySystemComponent.h
+
+用于与游戏中的能力系统（包括能力、效果和属性）交互的核心组件。它的主要功能包括：
+
+**GameplayAbilities**：提供能力的管理、分配和复制，允许玩家或AI使用能力，并确保在网络上正确同步。
+
+**GameplayEffects**：用于处理和应用游戏效果，并提供查询和修改这些效果的功能。
+
+**GameplayAttributes**：用于分配和管理角色的属性集，帮助存取和修改角色的属性。
+
+
+
+#### 13.1 Delegates
+
+```cpp
+DECLARE_MULTICAST_DELEGATE_OneParam(FTargetingRejectedConfirmation, int32);
+```
+
+- **用途**：当一个目标演员拒绝目标确认时会调用该委托。通常用于射击或选择目标时，玩家或系统拒绝当前目标的确认。
+- **参数**：`int32` 是一个参数，可能表示拒绝的原因或其他相关信息（例如，错误代码）。
+
+
+
+```cpp
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityFailedDelegate, const UGameplayAbility*, const FGameplayTagContainer&);
+```
+
+- **用途**：当能力激活失败时调用，传递失败的能力以及一个标签容器，标签容器说明了失败的原因（例如，能力无法执行的原因，如缺少资源或不满足条件）。
+
+- **参数：**`const UGameplayAbility*`：表示无法激活的能力。`const FGameplayTagContainer&`：包含表示失败原因的标签集合。
+
+
+
+```cpp
+DECLARE_MULTICAST_DELEGATE_OneParam(FAbilityEnded, UGameplayAbility*);
+```
+
+- **用途**：当能力结束时调用，用于通知所有订阅者该能力已结束。
+- **参数**：`UGameplayAbility*`：表示已结束的能力。
+
+
+
+```cpp
+DECLARE_MULTICAST_DELEGATE_OneParam(FAbilitySpecDirtied, const FGameplayAbilitySpec&);
+```
+
+- **用途**：当能力规格（Ability Spec）被修改时通知监听者。
+
+- **参数**：`const FGameplayAbilitySpec&`：表示已修改的能力规格。
+
+  
+
+```cpp
+DECLARE_MULTICAST_DELEGATE_TwoParams(FImmunityBlockGE, const FGameplayEffectSpec& /*BlockedSpec*/, const FActiveGameplayEffect* /*ImmunityGameplayEffect*/);
+```
+
+- **用途**：当 `GameplayEffectSpec` 被一个 `ActiveGameplayEffect` 阻止时调用，通常因为免疫效果导致阻止某个 `GameplayEffect` 的应用。
+
+- **参数：**
+
+  `const FGameplayEffectSpec&`：被阻止的游戏效果规格。
+
+  `const FActiveGameplayEffect*`：导致免疫的 `ActiveGameplayEffect`。
+
+  
+
+```cpp
+DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const FActiveGameplayEffectsContainer& /*ActiveGEContainer*/, const FGameplayEffectSpec& /*GESpecToConsider*/);
+```
+
+- **用途**：用于查询是否可以应用一个 `GameplayEffect`，返回一个布尔值决定是否允许应用。此委托允许使用多个委托来决定某个 `GameplayEffect` 是否可以被阻止（例如，通过免疫、抗性等）。
+
+- **参数：**
+
+  - `const FActiveGameplayEffectsContainer&`：当前激活的所有游戏效果容器。
+- `const FGameplayEffectSpec&`：要考虑的 `GameplayEffectSpec`，即要判断是否可以应用的效果。
+
