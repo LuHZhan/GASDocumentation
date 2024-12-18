@@ -13,7 +13,7 @@
 AGDCharacterBase::AGDCharacterBase(const class FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UGDCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Overlap);
@@ -29,7 +29,7 @@ AGDCharacterBase::AGDCharacterBase(const class FObjectInitializer& ObjectInitial
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
 }
 
-UAbilitySystemComponent * AGDCharacterBase::GetAbilitySystemComponent() const
+UAbilitySystemComponent* AGDCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent.Get();
 }
@@ -70,7 +70,7 @@ void AGDCharacterBase::RemoveCharacterAbilities()
 	AbilitySystemComponent->bCharacterAbilitiesGiven = false;
 }
 
-EGDHitReactDirection AGDCharacterBase::GetHitReactDirection(const FVector & ImpactPoint)
+EGDHitReactDirection AGDCharacterBase::GetHitReactDirection(const FVector& ImpactPoint)
 {
 	const FVector& ActorLocation = GetActorLocation();
 	// PointPlaneDist is super cheap - 1 vector subtraction, 1 dot product.
@@ -109,7 +109,7 @@ EGDHitReactDirection AGDCharacterBase::GetHitReactDirection(const FVector & Impa
 	return EGDHitReactDirection::Front;
 }
 
-void AGDCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AActor * DamageCauser)
+void AGDCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	if (IsAlive())
 	{
@@ -132,7 +132,7 @@ void AGDCharacterBase::PlayHitReact_Implementation(FGameplayTag HitDirection, AA
 	}
 }
 
-bool AGDCharacterBase::PlayHitReact_Validate(FGameplayTag HitDirection, AActor * DamageCauser)
+bool AGDCharacterBase::PlayHitReact_Validate(FGameplayTag HitDirection, AActor* DamageCauser)
 {
 	return true;
 }
@@ -358,4 +358,3 @@ void AGDCharacterBase::SetStamina(float Stamina)
 		AttributeSetBase->SetStamina(Stamina);
 	}
 }
-
