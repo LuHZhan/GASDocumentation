@@ -842,21 +842,21 @@ Your custom `AggregatorEvaluateMetaData` for qualifiers should be added to `FAgg
 
 <a name="concepts-ge-definition"></a>
 #### 4.5.1 Gameplay Effect Definition
-[`GameplayEffects`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/UGameplayEffect/index.html) (`GE`) 是能力通过它们改变 [`Attributes`](#concepts-a) 和 [`GameplayTags`](#concepts-gt) 的载体，影响自己和其他对象。它们可以引起即时的 `Attribute` 变化，例如伤害或治疗，或者施加长期的状态增益/减益效果，比如移动速度提升或眩晕。`UGameplayEffect` 类是一个 **数据-only** 类，定义单一的游戏效果。不要在 `GameplayEffects` 中添加额外的逻辑。通常，设计师会创建许多 `UGameplayEffect` 的蓝图子类。
+[`GameplayEffects`](https://docs.unrealengine.com/en-US/API/Plugins/GameplayAbilities/UGameplayEffect/index.html) (`GE`) are the vessels through which abilities change [`Attributes`](#concepts-a) and [`GameplayTags`](#concepts-gt) on themselves and others. They can cause immediate `Attribute` changes like damage or healing or apply long term status buff/debuffs like a movespeed boost or stunning. The `UGameplayEffect` class is a meant to be a **data-only** class that defines a single gameplay effect. No additional logic should be added to `GameplayEffects`. Typically designers will create many Blueprint child classes of `UGameplayEffect`.
 
-`GameplayEffects` 通过 [`Modifiers`](#concepts-ge-mods) 和 [`Executions`](#concepts-ge-ec) （即 `GameplayEffectExecutionCalculation`）来改变 `Attributes`。
+`GameplayEffects` change `Attributes` through [`Modifiers`](#concepts-ge-mods) and [`Executions` (`GameplayEffectExecutionCalculation`)](#concepts-ge-ec).
 
-`GameplayEffects` 有三种持续时间类型：`Instant`、`Duration` 和 `Infinite`。
+`GameplayEffects` have three types of duration: `Instant`, `Duration`, and `Infinite`.
 
-此外，`GameplayEffects` 可以添加/执行 [`GameplayCues`](#concepts-gc)。一个 `Instant` 类型的 `GameplayEffect` 将调用 `GameplayCue` `GameplayTags` 上的 `Execute`，而 `Duration` 或 `Infinite` 类型的 `GameplayEffect` 会在 `GameplayCue` `GameplayTags` 上调用 `Add` 和 `Remove`。
+Additionally, `GameplayEffects` can add/execute [`GameplayCues`](#concepts-gc). An `Instant` `GameplayEffect` will call `Execute` on the `GameplayCue` `GameplayTags` whereas a `Duration` or `Infinite` `GameplayEffect` will call `Add` and `Remove` on the `GameplayCue` `GameplayTags`.
 
-| Duration Type | GameplayCue Event | When to use                                                  |
-| ------------- | ----------------- | ------------------------------------------------------------ |
-| `Instant`     | Execute           | 用于对 `Attribute's` 的 `BaseValue` 进行立即的永久性更改。`GameplayTags` 不会被应用，即使是暂时也不会。 |
-| `Duration`    | Add & Remove      | 用于对 `Attribute's` 的 `CurrentValue` 进行临时更改，并应用将在 `GameplayEffect` 到期或手动移除时被移除的 `GameplayTags`。持续时间在 `UGameplayEffect` 类/蓝图中指定 |
-| `Infinite`    | Add & Remove      | 用于对 `Attribute's` 的 `CurrentValue` 进行临时更改，并应用将在 `GameplayEffect` 被移除时被移除的 `GameplayTags`。这些不会自动过期，必须通过能力或 `ASC` 手动移除。 |
+| Duration Type | GameplayCue Event | When to use                                                                                                                                                                                                                                |
+| ------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Instant`     | Execute           | For immediate permanent changes to `Attribute's` `BaseValue`. `GameplayTags` will not be applied, not even for a frame.                                                                                                                    |
+| `Duration`    | Add & Remove      | For temporary changes to `Attribute's` `CurrentValue` and to apply `GameplayTags` that will be removed when the `GameplayEffect` expires or is manually removed. The duration is specified in the `UGameplayEffect` class/Blueprint.       |
+| `Infinite`    | Add & Remove      | For temporary changes to `Attribute's` `CurrentValue` and to apply `GameplayTags` that will be removed when the `GameplayEffect` is removed. These will never expire on their own and must be manually removed by an ability or the `ASC`. |
 
-`Duration` 和 `Infinite` 类型的 `GameplayEffects` 可以选择应用 `Periodic Effects`，这些效果会根据定义的 `Period` 每隔 `X` 秒应用其 `Modifiers` 和 `Executions`。当涉及到改变 `Attribute's` 的 `BaseValue` 和执行 `GameplayCues` 时，`Periodic Effects` 被视为 `Instant` 类型的 `GameplayEffects`。这些效果对于持续伤害（DOT）类型的效果非常有用。**注意**：`Periodic Effects` 无法被 [预测](#concepts-p)。
+`Duration` and `Infinite` `GameplayEffects` have the option of applying `Periodic Effects` that apply its `Modifiers` and `Executions` every `X` seconds as defined by its `Period`. `Periodic Effects` are treated as `Instant` `GameplayEffects` when it comes to changing the `Attribute's` `BaseValue` and `Executing` `GameplayCues`. These are useful for damage over time (DOT) type effects. **Note:** `Periodic Effects` cannot be [predicted](#concepts-p).
 
 `Duration` and `Infinite` `GameplayEffects` can be temporarily turned off and on after application if their `Ongoing Tag Requirements` are not met/met ([Gameplay Effect Tags](#concepts-ge-tags)). Turning off a `GameplayEffect` removes the effects of its `Modifiers` and applied `GameplayTags` but does not remove the `GameplayEffect`. Turning the `GameplayEffect` back on reapplies its `Modifiers` and `GameplayTags`.
 
@@ -2253,49 +2253,53 @@ A `GameplayAbility`'s `NetSecurityPolicy` determines where should an ability exe
 **[⬆ Back to Top](#table-of-contents)**
 
 <a name="concepts-at"></a>
+
 ### 4.7 Ability Tasks
 
 <a name="concepts-at-definition"></a>
 ### 4.7.1 Ability Task Definition
-`GameplayAbilities` only execute in one frame. This does not allow for much flexibility on its own. To do actions that happen over time or require responding to delegates fired at some point later in time we use latent actions called `AbilityTasks`.
+`GameplayAbilities` 只能在一个帧内执行，这种设计本身不允许灵活的操作。为了处理需要随着时间进行的操作或响应某些延迟触发的事件，我们使用称为 `AbilityTasks`（能力任务）的延迟操作。
 
-GAS comes with many `AbilityTasks` out of the box:
-* Tasks for moving Characters with `RootMotionSource`
-* A task for playing animation montages
-* Tasks for responding to `Attribute` changes
-* Tasks for responding to `GameplayEffect` changes
-* Tasks for responding to player input
-* and more
+GAS 提供了许多内置的 `AbilityTasks`：
 
-The `UAbilityTask` constructor enforces a hardcoded game-wide maximum of 1000 concurrent `AbilityTasks` running at the same time. Keep this in mind when designing `GameplayAbilities` for games that can have hundreds of characters in the world at the same time like RTS games.
+- 使用 `RootMotionSource` 移动角色的任务。
+- 播放动画蒙太奇的任务。
+- 响应 `Attribute`（属性）变化的任务。
+- 响应 `GameplayEffect`（游戏效果）变化的任务。
+- 响应玩家输入的任务。
+- 以及其他任务。
+
+`UAbilityTask` 的构造函数在游戏范围内硬性限制了同时运行的 `AbilityTasks` 数量，最大为 1000 个。在设计有数百个角色同时存在的游戏（如 RTS 游戏）时，请注意这一点。
 
 **[⬆ Back to Top](#table-of-contents)**
 
 <a name="concepts-at-definition"></a>
 ### 4.7.2 Custom Ability Tasks
-Often you will be creating your own custom `AbilityTasks` (in C++). The Sample Project comes with two custom `AbilityTasks`:
-1. `PlayMontageAndWaitForEvent` is a combination of the default `PlayMontageAndWait` and `WaitGameplayEvent` `AbilityTasks`. This allows animation montages to send gameplay events from `AnimNotifies` back to the `GameplayAbility` that started them. Use this to trigger actions at specific times during animation montages.
-1. `WaitReceiveDamage` listens for the `OwnerActor` to receive damage. The passive armor stacks `GameplayAbility` removes a stack of armor when the hero receives an instance of damage.
+通常情况下，您会自己创建自定义的 `AbilityTasks`（用 C++ 实现）。示例项目中包含了两个自定义的 `AbilityTasks`：
 
-`AbilityTasks` are composed of:
-* A static function that creates new instances of the `AbilityTask`
-* Delegates that are broadcasted on when the `AbilityTask` completes its purpose
-* An `Activate()` function to start its main job, bind to external delegates, etc.
-* An `OnDestroy()` function for cleanup, including external delegates that it bound to
-* Callback functions for any external delegates that it bound to
-* Member variables and any internal helper functions
+1. `PlayMontageAndWaitForEvent` 是 `PlayMontageAndWait` 和 `WaitGameplayEvent` `AbilityTasks` 的组合。这使得动画蒙太奇可以通过 `AnimNotifies` 向启动它们的 `GameplayAbility` 发送游戏事件。可以使用此功能在动画蒙太奇的特定时间点触发动作。
+2. `WaitReceiveDamage` 监听 `OwnerActor` 接收伤害的事件。当英雄接收到伤害时，被动护甲堆叠的 `GameplayAbility` 会移除一层护甲堆叠。
 
-**Note:** `AbilityTasks` can only declare one type of output delegate. All of your output delegates must be of this type, regardless if they use the parameters or not. Pass default values for unused delegate parameters.
+`AbilityTasks` 的组成部分：
 
-`AbilityTasks` only run on the Client or Server that is running the owning `GameplayAbility`; however, `AbilityTasks` can be set to run on simulated clients by setting `bSimulatedTask = true;` in the `AbilityTask` constructor, overriding `virtual void InitSimulatedTask(UGameplayTasksComponent& InGameplayTasksComponent);`, and setting any member variables to be replicated. This is only useful in rare situations like movement `AbilityTasks` where you don't want to replicate every movement change but instead simulate the entire movement `AbilityTask`. All of the `RootMotionSource` `AbilityTasks` do this. See `AbilityTask_MoveToLocation.h/.cpp` as an example.
+- 一个用于创建 `AbilityTask` 实例的静态函数。
+- 在 `AbilityTask` 完成其任务时广播的委托。
+- 一个 `Activate()` 函数，用于启动主要任务，绑定外部委托等。
+- 一个 `OnDestroy()` 函数，用于清理任务，包括解除绑定的外部委托。
+- 用于处理外部委托的回调函数。
+- 成员变量和任何内部辅助函数。
 
-`AbilityTasks` can `Tick` if you set `bTickingTask = true;` in the `AbilityTask` constructor and override `virtual void TickTask(float DeltaTime);`. This is useful when you need to lerp values smoothly across frames. See `AbilityTask_MoveToLocation.h/.cpp` as an example.
+**注意：** `AbilityTasks` 只能声明一种输出委托类型。所有的输出委托必须使用这种类型，无论是否实际使用参数。对于未使用的委托参数，可以传递默认值。
+
+`AbilityTasks` 只能运行在拥有 `GameplayAbility` 的客户端或服务器上；但是，可以通过在 `AbilityTask` 的构造函数中设置 `bSimulatedTask = true;`，重写 `virtual void InitSimulatedTask(UGameplayTasksComponent& InGameplayTasksComponent);`，并设置需要的成员变量为可复制，实现运行在模拟客户端。这仅在少数情况下有用，例如移动类的 `AbilityTasks`，当您不希望复制每个移动变化，而是模拟整个移动 `AbilityTask` 时。这种设计在所有的 `RootMotionSource` 类 `AbilityTasks` 中都得到了应用。参考 `AbilityTask_MoveToLocation.h/.cpp`。
+
+如果您在 `AbilityTask` 的构造函数中设置 `bTickingTask = true;` 并重写 `virtual void TickTask(float DeltaTime);`，则 `AbilityTasks` 可以每帧调用 `Tick`。这在需要在多帧之间平滑插值（如渐变）时非常有用。参考 `AbilityTask_MoveToLocation.h/.cpp` 示例。
 
 **[⬆ Back to Top](#table-of-contents)**
 
 <a name="concepts-at-using"></a>
 ### 4.7.3 Using Ability Tasks
-To create and activate an `AbilityTask` in C++ (From `GDGA_FireGun.cpp`):
+在 C++ 中创建和激活一个 `AbilityTask`（代码示例来自 `GDGA_FireGun.cpp`）
 ```c++
 UGDAT_PlayMontageAndWaitForEvent* Task = UGDAT_PlayMontageAndWaitForEvent::PlayMontageAndWaitForEvent(this, NAME_None, MontageToPlay, FGameplayTagContainer(), 1.0f, NAME_None, false, 1.0f);
 Task->OnBlendOut.AddDynamic(this, &UGDGA_FireGun::OnCompleted);
@@ -2306,11 +2310,22 @@ Task->EventReceived.AddDynamic(this, &UGDGA_FireGun::EventReceived);
 Task->ReadyForActivation();
 ```
 
-In Blueprint, we just use the Blueprint node that we create for the `AbilityTask`. We don't have to call `ReadyForActivation()`. That is automatically called by `Engine/Source/Editor/GameplayTasksEditor/Private/K2Node_LatentGameplayTaskCall.cpp`. `K2Node_LatentGameplayTaskCall` also automatically calls `BeginSpawningActor()` and `FinishSpawningActor()` if they exist in your `AbilityTask` class (see `AbilityTask_WaitTargetData`). To reiterate, `K2Node_LatentGameplayTaskCall` only does automagic sorcery for Blueprint. In C++, we have to manually call `ReadyForActivation()`, `BeginSpawningActor()`, and `FinishSpawningActor()`.
+在蓝图中，我们可以直接使用为 `AbilityTask` 创建的蓝图节点，无需手动调用 `ReadyForActivation()`。这是因为该步骤会被自动处理，其逻辑由以下代码实现：
+ `Engine/Source/Editor/GameplayTasksEditor/Private/K2Node_LatentGameplayTaskCall.cpp`。
 
-![Blueprint WaitTargetData AbilityTask](https://github.com/tranek/GASDocumentation/raw/master/Images/abilitytask.png)
+`K2Node_LatentGameplayTaskCall` 的作用：
 
-To manually cancel an `AbilityTask`, just call `EndTask()` on the `AbilityTask` object in Blueprint (called `Async Task Proxy`) or in C++.
+- 自动调用 `ReadyForActivation()`，激活任务。
+- 如果 `AbilityTask` 类中存在 `BeginSpawningActor()` 和 `FinishSpawningActor()` 方法，这些方法也会被自动调用（可参考 `AbilityTask_WaitTargetData` 的实现）。
+
+`K2Node_LatentGameplayTaskCall` 的这些自动逻辑**仅适用于蓝图**。在 C++ 中，我们需要手动调用以下方法：
+
+- `ReadyForActivation()`：激活任务。
+- `BeginSpawningActor()` 和 `FinishSpawningActor()`：如果任务涉及生成 Actor，这两个方法必须显式调用。
+
+![Blueprint WaitTargetData AbilityTask](/Images/abilitytask.png)
+
+手动取消一个 `AbilityTask`，只需在蓝图（被称为 `Async Task Proxy`）或 C++ 中对 `AbilityTask` 对象调用 `EndTask()` 方法即可。
 
 **[⬆ Back to Top](#table-of-contents)**
 
@@ -3808,7 +3823,6 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 - **用途**：用于查询是否可以应用一个 `GameplayEffect`，返回一个布尔值决定是否允许应用。此委托允许使用多个委托来决定某个 `GameplayEffect` 是否可以被阻止（例如，通过免疫、抗性等）。
 
 - **参数：**
-
   - `const FActiveGameplayEffectsContainer&`：当前激活的所有游戏效果容器。
-- `const FGameplayEffectSpec&`：要考虑的 `GameplayEffectSpec`，即要判断是否可以应用的效果。
+  - `const FGameplayEffectSpec&`：要考虑的 `GameplayEffectSpec`，即要判断是否可以应用的效果。
 
