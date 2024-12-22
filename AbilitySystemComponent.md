@@ -129,3 +129,14 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 - `All` 是最全面的选择，适用于需要完全同步待添加和待移除项的操作。
 
 
+
+### 14.1 FGameplayEffectAttributeCaptureDefinition
+
+在UE5.4中，`FGameplayEffectAttributeCaptureDefinition`结构体中的`bSnapshot`属性用于控制属性捕获的时间点。具体来说：
+
+- **bSnapshot = true**：当`bSnapshot`为`true`时，属性值在效果应用时被捕获并固定下来。这意味着即使属性在效果持续期间发生变化，捕获的值也不会更新。这种方式适用于需要在效果应用时锁定属性值的情况，例如计算一次性伤害。
+- **bSnapshot = false**：当`bSnapshot`为`false`时，属性值在效果持续期间会动态更新。这意味着每次效果计算时都会使用当前的属性值。这种方式适用于需要根据属性的实时变化来调整效果的情况，例如持续治疗或持续伤害效果。
+
+[通过设置`bSnapshot`属性，你可以更灵活地控制Gameplay Effect在不同场景下的行为](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-)[1](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-)[2](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-/__ctor/1)。
+
+​              
