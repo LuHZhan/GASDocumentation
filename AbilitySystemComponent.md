@@ -12,7 +12,7 @@
 
 
 
-#### 13.1 Delegates
+#### 13.1.1 Delegates
 
 ```cpp
 DECLARE_MULTICAST_DELEGATE_OneParam(FTargetingRejectedConfirmation, int32);
@@ -78,9 +78,9 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 
 
 
-####  13.2 Eunm
+####  13.1.2 Eunm
 
-##### 13.2.1 EGameplayEffectReplicationMode
+##### 13.1.2.1 EGameplayEffectReplicationMode
 
 用于控制游戏效果（`GameplayEffect`）如何从服务器复制到客户端。它描述了不同的复制级别，从最小的信息到完整的信息，适应不同的网络需求和性能要求。
 
@@ -105,7 +105,7 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 
   
 
-##### 13.2.2 EConsiderPending 
+##### 13.1.2.2 EConsiderPending 
 
 用于在处理待定的操作（例如添加或移除能力）时，如何处理尚未应用的操作。它控制游戏对象在执行操作时是否考虑已排队的、待处理的项。
 
@@ -130,7 +130,7 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 
 
 
-### 14.1 FGameplayEffectAttributeCaptureDefinition
+### 13.2 FGameplayEffectAttributeCaptureDefinition
 
 在UE5.4中，`FGameplayEffectAttributeCaptureDefinition`结构体中的`bSnapshot`属性用于控制属性捕获的时间点。具体来说：
 
@@ -139,4 +139,13 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 
 [通过设置`bSnapshot`属性，你可以更灵活地控制Gameplay Effect在不同场景下的行为](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-)[1](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-)[2](https://dev.epicgames.com/documentation/en-us/unreal-engine/API/Plugins/GameplayAbilities/FGameplayEffectAttributeCaptureD-/__ctor/1)。
 
+
+
+## 14. Translate
+
+**Velocity：** 是一个矢量（vector），不仅表示物体运动的快慢，还包含运动的方向。例如，一辆车以每小时60公里的速度向北行驶
+
+**Acceleration：**表示物体速度随时间的变化率。它是一个矢量量，既有大小也有方向。以下是一些关键点：
+
 ​              
+

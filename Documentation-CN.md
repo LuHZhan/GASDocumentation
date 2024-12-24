@@ -454,7 +454,7 @@ void AGDHeroCharacter::OnRep_PlayerState()
 
 `GameplayTags` 必须在 `DefaultGameplayTags.ini` 中预先定义。Unreal Engine 编辑器提供了一个界面，允许开发者管理 `GameplayTags`，而不需要手动编辑 `DefaultGameplayTags.ini` 文件。`GameplayTag` 编辑器可以创建、重命名、搜索引用以及删除 `GameplayTags`。
 
-![GameplayTag Editor in Project Settings](/Images/gameplaytageditor.png)
+![GameplayTag Editor in Project Settings](Images/gameplaytageditor.png)
 
 搜索 `GameplayTag` 的引用会在编辑器中打开熟悉的 `Reference Viewer` 图，显示所有引用该 `GameplayTag` 的资产。然而，这不会显示任何引用该 `GameplayTag` 的 C++ 类。
 
