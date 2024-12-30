@@ -17,11 +17,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FGDPlayMontageAndWaitForEventDelega
  * This is a good task to look at as an example when creating game-specific tasks
  * It is expected that each game will have a set of game-specific tasks to do what they want
  */
+
+/**
+ * 此任务将 PlayMontageAndWait 和 WaitForEvent 结合为一个任务，因此您可以等待多种类型的激活，例如近战连击。
+ * 这是一个很好的示例任务，可用于创建特定于游戏的任务。每个游戏都预计会有一组特定于游戏的任务来实现他们的需求
+ */
 UCLASS()
 class GASDOCUMENTATION_API UGDAT_PlayMontageAndWaitForEvent : public UAbilityTask
 {
 	GENERATED_BODY()
-	
+
 public:
 	// Constructor and overrides
 	UGDAT_PlayMontageAndWaitForEvent(const FObjectInitializer& ObjectInitializer);
@@ -60,6 +65,14 @@ public:
 	 * If StopWhenAbilityEnds is true, this montage will be aborted if the ability ends normally. It is always stopped when the ability is explicitly cancelled.
 	 * On normal execution, OnBlendOut is called when the montage is blending out, and OnCompleted when it is completely done playing
 	 * OnInterrupted is called if another montage overwrites this, and OnCancelled is called if the ability or task is cancelled
+	 * 
+	 * 播放蒙太奇并等待其结束。如果发生匹配EventTags（或者EventTags为空）的游戏事件，EventReceived委托将会触发，并携带标签和事件数据。
+	 * 如果StopWhenAbilityEnds为真，当能力正常结束时，此蒙太奇将会被中止。能力被显式取消时，它总是会被停止。
+	 * 
+	 * OnBlendOut     会在在正常执行过程中蒙太奇正在混合结束时被调用
+	 * OnCompleted    会在蒙太奇完全播放完毕时被调用。
+	 * OnInterrupted  会在被另一个蒙太奇覆盖了当前蒙太奇时被调用
+	 * OnCancelled    会在如果能力或任务被取消被调用。
 	 *
 	 * @param TaskInstanceName Set to override the name of this task, for later querying
 	 * @param MontageToPlay The montage to play on the character
@@ -70,14 +83,14 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UGDAT_PlayMontageAndWaitForEvent* PlayMontageAndWaitForEvent(
-			UGameplayAbility* OwningAbility,
-			FName TaskInstanceName,
-			UAnimMontage* MontageToPlay,
-			FGameplayTagContainer EventTags,
-			float Rate = 1.f,
-			FName StartSection = NAME_None,
-			bool bStopWhenAbilityEnds = true,
-			float AnimRootMotionTranslationScale = 1.f);
+		UGameplayAbility* OwningAbility,
+		FName TaskInstanceName,
+		UAnimMontage* MontageToPlay,
+		FGameplayTagContainer EventTags,
+		float Rate = 1.f,
+		FName StartSection = NAME_None,
+		bool bStopWhenAbilityEnds = true,
+		float AnimRootMotionTranslationScale = 1.f);
 
 private:
 	/** Montage that is playing */
@@ -110,11 +123,12 @@ private:
 	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
 	void OnAbilityCancelled();
 	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	/**  */
 	void OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
 
+	/** 会触发FGDPlayMontageAndWaitForEventDelegate，绑定至AnimInstance */
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
 	FDelegateHandle CancelledHandle;
 	FDelegateHandle EventHandle;
-	
 };

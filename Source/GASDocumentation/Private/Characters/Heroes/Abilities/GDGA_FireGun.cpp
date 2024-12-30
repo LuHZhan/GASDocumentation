@@ -38,27 +38,30 @@ void UGDGA_FireGun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	}
 
 	// Play fire montage and wait for event telling us to spawn the projectile
+	// 播放开火蒙太奇动画并等待事件通知我们生成投射物
 	UGDAT_PlayMontageAndWaitForEvent* Task = UGDAT_PlayMontageAndWaitForEvent::PlayMontageAndWaitForEvent(this, NAME_None, MontageToPlay, FGameplayTagContainer(), 1.0f, NAME_None, false, 1.0f);
 	Task->OnBlendOut.AddDynamic(this, &UGDGA_FireGun::OnCompleted);
 	Task->OnCompleted.AddDynamic(this, &UGDGA_FireGun::OnCompleted);
 	Task->OnInterrupted.AddDynamic(this, &UGDGA_FireGun::OnCancelled);
 	Task->OnCancelled.AddDynamic(this, &UGDGA_FireGun::OnCancelled);
+	// 设置好委托后，调用该函数以触发实际任务
 	Task->EventReceived.AddDynamic(this, &UGDGA_FireGun::EventReceived);
 	// ReadyForActivation() is how you activate the AbilityTask in C++. Blueprint has magic from K2Node_LatentGameplayTaskCall that will automatically call ReadyForActivation().
 	Task->ReadyForActivation();
 }
 
-void UGDGA_FireGun::OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData)
+void UGDGA_FireGun::OnCancelled_Implementation(FGameplayTag EventTag, FGameplayEventData EventData)
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);
 }
 
-void UGDGA_FireGun::OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData)
+void UGDGA_FireGun::OnCompleted_Implementation(FGameplayTag EventTag, FGameplayEventData EventData)
 {
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
 }
 
-void UGDGA_FireGun::EventReceived(FGameplayTag EventTag, FGameplayEventData EventData)
+
+void UGDGA_FireGun::EventReceived_Implementation(FGameplayTag EventTag, FGameplayEventData EventData)
 {
 	// Montage told us to end the ability before the montage finished playing.
 	// Montage was set to continue playing animation even after ability ends so this is okay.
@@ -83,7 +86,6 @@ void UGDGA_FireGun::EventReceived(FGameplayTag EventTag, FGameplayEventData Even
 		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Start, End);
 
 		FGameplayEffectSpecHandle DamageEffectSpecHandle = MakeOutgoingGameplayEffectSpec(DamageGameplayEffect, GetAbilityLevel());
-		
 		// Pass the damage to the Damage Execution Calculation through a SetByCaller value on the GameplayEffectSpec
 		DamageEffectSpecHandle.Data.Get()->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName("Data.Damage")), Damage);
 

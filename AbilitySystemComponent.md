@@ -141,11 +141,20 @@ DECLARE_DELEGATE_RetVal_TwoParams(bool, FGameplayEffectApplicationQuery, const F
 
 
 
+
+
+
+
+
+
 ## 14. Translate
 
 **Velocity：** 是一个矢量（vector），不仅表示物体运动的快慢，还包含运动的方向。例如，一辆车以每小时60公里的速度向北行驶
 
 **Acceleration：**表示物体速度随时间的变化率。它是一个矢量量，既有大小也有方向。以下是一些关键点：
 
-​              
+**Magnitude：**幅度，大小，强度。
 
+**Multicast：**多播
+
+**Potentially：**潜在的

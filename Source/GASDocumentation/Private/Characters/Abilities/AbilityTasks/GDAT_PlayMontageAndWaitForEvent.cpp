@@ -17,6 +17,8 @@ UGDAT_PlayMontageAndWaitForEvent::UGDAT_PlayMontageAndWaitForEvent(const FObject
 	bStopWhenAbilityEnds = true;
 }
 
+// 设置动画蒙太奇（Montage）在开始淡出时的委托（Delegate）。允许你在动画蒙太奇即将结束时执行特定的回调函数。
+// 触发FGDPlayMontageAndWaitForEventDelegate
 void UGDAT_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (Ability && Ability->GetCurrentMontage() == MontageToPlay)
@@ -52,6 +54,7 @@ void UGDAT_PlayMontageAndWaitForEvent::OnMontageBlendingOut(UAnimMontage* Montag
 	}
 }
 
+// 触发FGDPlayMontageAndWaitForEventDelegate
 void UGDAT_PlayMontageAndWaitForEvent::OnAbilityCancelled()
 {
 	// TODO: Merge this fix back to engine, it was calling the wrong callback
@@ -66,6 +69,7 @@ void UGDAT_PlayMontageAndWaitForEvent::OnAbilityCancelled()
 	}
 }
 
+// 触发FGDPlayMontageAndWaitForEventDelegate
 void UGDAT_PlayMontageAndWaitForEvent::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (!bInterrupted)
@@ -79,6 +83,7 @@ void UGDAT_PlayMontageAndWaitForEvent::OnMontageEnded(UAnimMontage* Montage, boo
 	EndTask();
 }
 
+// callback when gameplay events happen.
 void UGDAT_PlayMontageAndWaitForEvent::OnGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload)
 {
 	if (ShouldBroadcastAbilityTaskDelegates())
@@ -127,6 +132,7 @@ void UGDAT_PlayMontageAndWaitForEvent::Activate()
 			if (AbilitySystemComponent->PlayMontage(Ability, Ability->GetCurrentActivationInfo(), MontageToPlay, Rate, StartSection) > 0.f)
 			{
 				// Playing a montage could potentially fire off a callback into game code which could kill this ability! Early out if we are  pending kill.
+				// 播放一个蒙太奇可能会触发一个回调到游戏代码中，进而可能会终止这个能力
 				if (ShouldBroadcastAbilityTaskDelegates() == false)
 				{
 					return;
@@ -141,6 +147,7 @@ void UGDAT_PlayMontageAndWaitForEvent::Activate()
 				AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, MontageToPlay);
 
 				ACharacter* Character = Cast<ACharacter>(GetAvatarActor());
+				// 这似乎是在处理网络相关的功能？可能是固定的逻辑
 				if (Character && (Character->GetLocalRole() == ROLE_Authority ||
 					(Character->GetLocalRole() == ROLE_AutonomousProxy && Ability->GetNetExecutionPolicy() == EGameplayAbilityNetExecutionPolicy::LocalPredicted)))
 				{
@@ -206,6 +213,7 @@ void UGDAT_PlayMontageAndWaitForEvent::OnDestroy(bool AbilityEnded)
 
 }
 
+// 停止当前蒙太奇
 bool UGDAT_PlayMontageAndWaitForEvent::StopPlayingMontage()
 {
 	const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();

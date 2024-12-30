@@ -34,6 +34,15 @@ public:
 	/** Actually activate ability, do not call this directly. We'll call it from APAHeroCharacter::ActivateAbilitiesWithTags(). */
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void EventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
+	
 protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float Range;
@@ -41,12 +50,5 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float Damage;
 
-	UFUNCTION()
-	void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
-
-	UFUNCTION()
-	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
-
-	UFUNCTION()
-	void EventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
+	
 };
