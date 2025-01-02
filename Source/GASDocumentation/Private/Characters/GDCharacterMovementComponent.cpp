@@ -48,9 +48,12 @@ void UGDCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 {
 	Super::UpdateFromCompressedFlags(Flags);
 
-	//The Flags parameter contains the compressed input flags that are stored in the saved move.
-	//UpdateFromCompressed flags simply copies the flags from the saved move into the movement component.
-	//It basically just resets the movement component to the state when the move was made so it can simulate from there.
+	// The Flags parameter contains the compressed input flags that are stored in the saved move.
+	// UpdateFromCompressed flags simply copies the flags from the saved move into the movement component.
+	// It basically just resets the movement component to the state when the move was made so it can simulate from there.
+	// Flags 参数包含保存在保存的移动中的压缩输入标志
+	// UpdateFromCompressedFlags 实际上只是将保存的移动中的标志复制到移动组件中
+	// 它基本上只是重置移动组件的状态，使其恢复到执行移动时的状态，然后可以从那里继续模拟
 	RequestToStartSprinting = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
 
 	RequestToStartADS = (Flags & FSavedMove_Character::FLAG_Custom_1) != 0;
@@ -64,6 +67,7 @@ FNetworkPredictionData_Client * UGDCharacterMovementComponent::GetPredictionData
 	{
 		UGDCharacterMovementComponent* MutableThis = const_cast<UGDCharacterMovementComponent*>(this);
 
+		// Custom Client 在这里被创建
 		MutableThis->ClientPredictionData = new FGDNetworkPredictionData_Client(*this);
 		MutableThis->ClientPredictionData->MaxSmoothNetUpdateDist = 92.f;
 		MutableThis->ClientPredictionData->NoSmoothNetUpdateDist = 140.f;
@@ -106,11 +110,13 @@ uint8 UGDCharacterMovementComponent::FGDSavedMove::GetCompressedFlags() const
 
 	if (SavedRequestToStartSprinting)
 	{
+		// 在这里将标记压缩到Result中
 		Result |= FLAG_Custom_0;
 	}
 
 	if (SavedRequestToStartADS)
 	{
+		// 在这里将标记压缩到Result中
 		Result |= FLAG_Custom_1;
 	}
 
@@ -120,6 +126,7 @@ uint8 UGDCharacterMovementComponent::FGDSavedMove::GetCompressedFlags() const
 bool UGDCharacterMovementComponent::FGDSavedMove::CanCombineWith(const FSavedMovePtr & NewMove, ACharacter * Character, float MaxDelta) const
 {
 	//Set which moves can be combined together. This will depend on the bit flags that are used.
+	// 可以组合在一起的集合，取决于使用的位标志
 	if (SavedRequestToStartSprinting != ((FGDSavedMove*)&NewMove)->SavedRequestToStartSprinting)
 	{
 		return false;
@@ -140,6 +147,7 @@ void UGDCharacterMovementComponent::FGDSavedMove::SetMoveFor(ACharacter * Charac
 	UGDCharacterMovementComponent* CharacterMovement = Cast<UGDCharacterMovementComponent>(Character->GetCharacterMovement());
 	if (CharacterMovement)
 	{
+		// 在这里进行初始化
 		SavedRequestToStartSprinting = CharacterMovement->RequestToStartSprinting;
 		SavedRequestToStartADS = CharacterMovement->RequestToStartADS;
 	}
@@ -162,5 +170,6 @@ UGDCharacterMovementComponent::FGDNetworkPredictionData_Client::FGDNetworkPredic
 
 FSavedMovePtr UGDCharacterMovementComponent::FGDNetworkPredictionData_Client::AllocateNewMove()
 {
+	// 生成Custom Saved Move
 	return FSavedMovePtr(new FGDSavedMove());
 }

@@ -28,11 +28,14 @@ class GASDOCUMENTATION_API UGDCharacterMovementComponent : public UCharacterMove
 
 		///@brief This is used to check whether or not two moves can be combined into one.
 		///Basically you just check to make sure that the saved variables are the same.
+		// 用于检查两个动作是否可以合并为一个。基本上你只需要检查以确保保存的变量是相同的。
 		virtual bool CanCombineWith(const FSavedMovePtr& NewMove, ACharacter* Character, float MaxDelta) const override;
 
-		///@brief Sets up the move before sending it to the server. 
+		///@brief Sets up the move before sending it to the server.  移动发送到Server之前
 		virtual void SetMoveFor(ACharacter* Character, float InDeltaTime, FVector const& NewAccel, class FNetworkPredictionData_Client_Character & ClientData) override;
+		
 		///@brief Sets variables on character movement component before making a predictive correction.
+		// 在进行预测修正之前，设置角色移动组件的变量。
 		virtual void PrepMoveFor(class ACharacter* Character) override;
 
 		// Sprint
