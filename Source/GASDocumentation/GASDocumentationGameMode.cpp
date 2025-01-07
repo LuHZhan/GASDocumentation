@@ -21,6 +21,7 @@ AGASDocumentationGameMode::AGASDocumentationGameMode()
 	}
 }
 
+//  切换成SpectatorClass，并开始重生倒计时
 void AGASDocumentationGameMode::HeroDied(AController* Controller)
 {
 	FActorSpawnParameters SpawnParameters;
@@ -72,9 +73,12 @@ void AGASDocumentationGameMode::RespawnHero(AController * Controller)
 
 		AGDHeroCharacter* Hero = GetWorld()->SpawnActor<AGDHeroCharacter>(HeroClass, PlayerStart->GetActorLocation(), PlayerStart->GetActorRotation(), SpawnParameters);
 
+		// 清除观察者Pawn和Controller绑定关系
 		APawn* OldSpectatorPawn = Controller->GetPawn();
 		Controller->UnPossess();
 		OldSpectatorPawn->Destroy();
+
+		// 绑定Controller
 		Controller->Possess(Hero);
 	}
 	else

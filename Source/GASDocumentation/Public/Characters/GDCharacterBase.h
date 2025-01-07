@@ -121,6 +121,7 @@ protected:
 	UAnimMontage* DeathMontage;
 
 	// Default abilities for this Character. These will be removed on Character death and regiven if Character respawns.
+	// 该角色的默认技能。角色死亡时会移除，复活时会重新赋予
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASDocumentation|Abilities")
 	TArray<TSubclassOf<class UGDGameplayAbility>> CharacterAbilities;
 
@@ -139,6 +140,8 @@ protected:
 	// Initialize the Character's attributes. Must run on Server but we run it on Client too
 	// so that we don't have to wait. The Server's replication to the Client won't matter since
 	// the values should be the same.
+	// 初始化角色的属性。必须在服务器上运行，但我们也在客户端运行，以便不需要等待。
+	// 服务器的复制到客户端不会产生影响，因为这些值应该是相同的。
 	virtual void InitializeAttributes();
 
 	virtual void AddStartupEffects();

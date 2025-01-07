@@ -85,6 +85,7 @@ void AGDHeroCharacter::PossessedBy(AController* NewController)
 		AbilitySystemComponent = Cast<UGDAbilitySystemComponent>(PS->GetAbilitySystemComponent());
 
 		// AI won't have PlayerControllers so we can init again here just to be sure. No harm in initing twice for heroes that have PlayerControllers.
+		// AI不会有PlayerController，所以我们可以在这里再次init来确保。对于有PlayerController的英雄，启动两次也无妨。
 		PS->GetAbilitySystemComponent()->InitAbilityActorInfo(PS, this);
 
 		// Set the AttributeSetBase for convenience attribute functions
@@ -109,7 +110,6 @@ void AGDHeroCharacter::PossessedBy(AController* NewController)
 
 
 		AddStartupEffects();
-
 		AddCharacterAbilities();
 
 		AGDPlayerController* PC = Cast<AGDPlayerController>(GetController());
@@ -171,6 +171,7 @@ void AGDHeroCharacter::FinishDying()
 * On the Server, Possession happens before BeginPlay.
 * On the Client, BeginPlay happens before Possession.
 * So we can't use BeginPlay to do anything with the AbilitySystemComponent because we don't have it until the PlayerState replicates from possession.
+* 在服务器上，占有发生在BeginPlay之前。在客户端，开始游戏发生在Possession之前。所以我们不能在BeginPlay对AbilitySystemComponent做任何事情，因为直到PlayerState从占有中复制出来我们才有它。
 */
 void AGDHeroCharacter::BeginPlay()
 {
@@ -237,6 +238,7 @@ void AGDHeroCharacter::MoveRight(float Value)
 	AddMovementInput(UKismetMathLibrary::GetRightVector(FRotator(0, GetControlRotation().Yaw, 0)), Value);
 }
 
+// 初始化浮动状态栏
 void AGDHeroCharacter::InitializeFloatingStatusBar()
 {
 	// Only create once
@@ -246,6 +248,7 @@ void AGDHeroCharacter::InitializeFloatingStatusBar()
 	}
 
 	// Setup UI for Locally Owned Players only, not AI or the server's copy of the PlayerControllers
+	// 只为本地拥有的玩家设置UI，而不是AI或玩家控制器的服务器副本
 	AGDPlayerController* PC = Cast<AGDPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	if (PC && PC->IsLocalPlayerController())
 	{

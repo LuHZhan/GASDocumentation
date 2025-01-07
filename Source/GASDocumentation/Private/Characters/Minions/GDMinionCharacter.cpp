@@ -82,6 +82,7 @@ void AGDMinionCharacter::BeginPlay()
 	}
 }
 
+// Bind Event
 void AGDMinionCharacter::HealthChanged(const FOnAttributeChangeData & Data)
 {
 	float Health = Data.NewValue;
@@ -99,6 +100,7 @@ void AGDMinionCharacter::HealthChanged(const FOnAttributeChangeData & Data)
 	}
 }
 
+// Bind Event
 void AGDMinionCharacter::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	if (NewCount > 0)

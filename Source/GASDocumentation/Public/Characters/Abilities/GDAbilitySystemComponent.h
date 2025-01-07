@@ -17,7 +17,9 @@ class GASDOCUMENTATION_API UGDAbilitySystemComponent : public UAbilitySystemComp
 	GENERATED_BODY()
 	
 public:
+	// 是否已经获得了其默认或初始的技能（Abilities）
 	bool bCharacterAbilitiesGiven = false;
+	// 是否已经应用初始化AS的GE
 	bool bStartupEffectsApplied = false;
 
 	FReceivedDamageDelegate ReceivedDamage;

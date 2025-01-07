@@ -20,12 +20,15 @@ AGDCharacterBase::AGDCharacterBase(const class FObjectInitializer& ObjectInitial
 
 	bAlwaysRelevant = true;
 
-	// Cache tags
+	// HitReact Tags
 	HitDirectionFrontTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Front"));
 	HitDirectionBackTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Back"));
 	HitDirectionRightTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Right"));
 	HitDirectionLeftTag = FGameplayTag::RequestGameplayTag(FName("Effect.HitReact.Left"));
+
+	// Other Tags
 	DeadTag = FGameplayTag::RequestGameplayTag(FName("State.Dead"));
+	// 表示带有这个Tag的Ability需要在死亡时被移除
 	EffectRemoveOnDeathTag = FGameplayTag::RequestGameplayTag(FName("Effect.RemoveOnDeath"));
 }
 
@@ -73,10 +76,18 @@ void AGDCharacterBase::RemoveCharacterAbilities()
 EGDHitReactDirection AGDCharacterBase::GetHitReactDirection(const FVector& ImpactPoint)
 {
 	const FVector& ActorLocation = GetActorLocation();
-	// PointPlaneDist is super cheap - 1 vector subtraction, 1 dot product.
+
+	// 	DistanceToFrontBackPlane：
+	// 这个变量表示的是击中点到 前后平面 的距离。
+	// 前后平面的法向量是角色的 右向量（GetActorRightVector()）。
+	// 因此，这个距离的正负值可以用来判断击中点是在角色的 左侧还是右侧。
+	//
+	// DistanceToRightLeftPlane：
+	// 这个变量表示的是击中点到 左右平面 的距离。
+	// 左右平面的法向量是角色的 前向量（GetActorForwardVector()）。
+	// 因此，这个距离的正负值可以用来判断击中点是在角色的 前方还是后方。
 	float DistanceToFrontBackPlane = FVector::PointPlaneDist(ImpactPoint, ActorLocation, GetActorRightVector());
 	float DistanceToRightLeftPlane = FVector::PointPlaneDist(ImpactPoint, ActorLocation, GetActorForwardVector());
-
 
 	if (FMath::Abs(DistanceToFrontBackPlane) <= FMath::Abs(DistanceToRightLeftPlane))
 	{
@@ -247,6 +258,7 @@ void AGDCharacterBase::Die()
 		EffectTagsToRemove.AddTag(EffectRemoveOnDeathTag);
 		int32 NumEffectsRemoved = AbilitySystemComponent->RemoveActiveEffectsWithTags(EffectTagsToRemove);
 
+		// LooseTag 是一个 GameplayTag，但它不与任何具体的 GameplayEffect（例如伤害效果、buff、debuff等）绑定。换句话说，它只是一个标签，用于描述角色或对象的状态或属性，而不涉及与之相关的实际游戏效果。
 		AbilitySystemComponent->AddLooseGameplayTag(DeadTag);
 	}
 
@@ -271,6 +283,7 @@ void AGDCharacterBase::BeginPlay()
 	Super::BeginPlay();
 }
 
+// 初始化GA
 void AGDCharacterBase::AddCharacterAbilities()
 {
 	// Grant abilities, but only on the server	
@@ -283,12 +296,16 @@ void AGDCharacterBase::AddCharacterAbilities()
 	{
 		// 通过AbilityInputID定义InputID，从而指定对应的输入
 		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(StartupAbility, GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID), static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this));
+			FGameplayAbilitySpec(StartupAbility,
+			                     GetAbilityLevel(StartupAbility.GetDefaultObject()->AbilityID),
+			                     static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID),
+			                     this));
 	}
 
 	AbilitySystemComponent->bCharacterAbilitiesGiven = true;
 }
 
+// 运行DefaultAttributes 进行AS的初始化
 void AGDCharacterBase::InitializeAttributes()
 {
 	if (!AbilitySystemComponent.IsValid())
@@ -313,6 +330,7 @@ void AGDCharacterBase::InitializeAttributes()
 	}
 }
 
+// 运行StartupEffects 进行GE的初始化
 void AGDCharacterBase::AddStartupEffects()
 {
 	if (GetLocalRole() != ROLE_Authority || !AbilitySystemComponent.IsValid() || AbilitySystemComponent->bStartupEffectsApplied)
