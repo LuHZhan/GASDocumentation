@@ -3,6 +3,11 @@
 
 #include "Characters/Abilities/AsyncTaskEffectStackChanged.h"
 
+
+/*
+ * 先绑定GE激活/清除，在触发时绑定GameplayEffectStackChange
+ * 
+ */
 UAsyncTaskEffectStackChanged * UAsyncTaskEffectStackChanged::ListenForGameplayEffectStackChange(UAbilitySystemComponent * AbilitySystemComponent, FGameplayTag InEffectGameplayTag)
 {
 	UAsyncTaskEffectStackChanged* ListenForGameplayEffectStackChange = NewObject<UAsyncTaskEffectStackChanged>();
@@ -15,7 +20,9 @@ UAsyncTaskEffectStackChanged * UAsyncTaskEffectStackChanged::ListenForGameplayEf
 		return nullptr;
 	}
 
+	// 当GE被激活时会触发的委托
 	AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(ListenForGameplayEffectStackChange, &UAsyncTaskEffectStackChanged::OnActiveGameplayEffectAddedCallback);
+	// 当GE被清除时会触发的委托
 	AbilitySystemComponent->OnAnyGameplayEffectRemovedDelegate().AddUObject(ListenForGameplayEffectStackChange, &UAsyncTaskEffectStackChanged::OnRemoveGameplayEffectCallback);
 
 	return ListenForGameplayEffectStackChange;
@@ -48,7 +55,9 @@ void UAsyncTaskEffectStackChanged::OnActiveGameplayEffectAddedCallback(UAbilityS
 
 	if (AssetTags.HasTagExact(EffectGameplayTag) || GrantedTags.HasTagExact(EffectGameplayTag))
 	{
+		// 绑定GameplayEffectStackChanged
 		ASC->OnGameplayEffectStackChangeDelegate(ActiveHandle)->AddUObject(this, &UAsyncTaskEffectStackChanged::GameplayEffectStackChanged);
+		// 触发OnGameplayEffectStackChange引脚
 		OnGameplayEffectStackChange.Broadcast(EffectGameplayTag, ActiveHandle, 1, 0);
 		ActiveEffectHandle = ActiveHandle;
 	}
@@ -64,11 +73,13 @@ void UAsyncTaskEffectStackChanged::OnRemoveGameplayEffectCallback(const FActiveG
 
 	if (AssetTags.HasTagExact(EffectGameplayTag) || GrantedTags.HasTagExact(EffectGameplayTag))
 	{
+		// 触发OnGameplayEffectStackChange引脚，不过是移除
 		OnGameplayEffectStackChange.Broadcast(EffectGameplayTag, EffectRemoved.Handle, 0, 1);
 	}
 }
 
 void UAsyncTaskEffectStackChanged::GameplayEffectStackChanged(FActiveGameplayEffectHandle EffectHandle, int32 NewStackCount, int32 PreviousStackCount)
 {
+	// 触发OnGameplayEffectStackChange引脚
 	OnGameplayEffectStackChange.Broadcast(EffectGameplayTag, EffectHandle, NewStackCount, PreviousStackCount);
 }
